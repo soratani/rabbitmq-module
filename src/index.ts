@@ -3,4 +3,3 @@ export * from './rabbitmq-client';
 export * from './rabbitmq.constants';
 export * from './rabbitmq.decorators';
 export * from './rabbitmq.module';
-export * from './rabbitmq.exceptions';

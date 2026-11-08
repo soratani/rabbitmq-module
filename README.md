@@ -8,7 +8,7 @@
 - **单机和集群**：可使用 `url` / `urls`，也可使用 `host`、`port`、`user`、`password` 字段。`urls` 支持多个集群节点地址；连接管理器会在连接断开后自动重连，并按地址列表尝试连接。
 - **多个连接**：一个 Nest 应用内可创建 `publisher`、`subscriber` 等不同名字的客户端，分别设置地址和连接参数。
 - **异步具名客户端**：`forRootAsync()` 返回的 `clients` 对象 key 就是客户端名，无需另外声明名称；通过客户端注册表按 key 取用。
-- **配置异常提示**：URL/主机字段冲突、协议不支持、TLS 参数与协议不匹配、连接地址缺失等配置错误会抛出 Nest `BadRequestException` 的子类 `RabbitMQConfigurationException`，错误信息会指出客户端名和问题字段。
+- **配置异常提示**：URL/主机字段冲突、协议不支持、TLS 参数与协议不匹配、连接地址缺失等配置错误会抛出 JavaScript 原生 `Error`，错误信息会指出客户端名和问题字段。
 - **完整 AMQP 操作**：托管 channel 的 setup 回调拿到原生 amqplib channel；需要直接控制连接/channel 时，也可取连接管理器或创建 raw channel。
 - **托管 channel 自动恢复**：每次重连后托管 channel 会重新执行 `setup`，适合恢复 exchange、queue、binding 和 consumer。
 - **生命周期管理**：Nest 应用关闭时自动关闭模块创建的客户端；也可调用 `client.close()` 提前关闭。
@@ -58,9 +58,9 @@ RabbitMQModule.forRoot({
 
 `port` 默认在 `amqp` 协议下为 `5672`，`amqps` 下为 `5671`；`user` 和 `password` 默认值为 `guest`，`vhost` 默认值为 `/`。需要 TLS 时设置 `protocol: 'amqps'` 并按需设置 TLS 连接参数。
 
-`url` / `urls` 与 `host` 配置模式不可混用。若 `url` / `urls` 中同时指定 `protocol`，它必须与 URL 自身的 `amqp://` 或 `amqps://` 一致。TLS 的 CA、证书或密钥等参数只能配合 `amqps` 使用；配置为 `amqp` 时模块会在初始化阶段抛出 Nest 异常，而不是尝试建立错误连接。
+`url` / `urls` 与 `host` 配置模式不可混用。若 `url` / `urls` 中同时指定 `protocol`，它必须与 URL 自身的 `amqp://` 或 `amqps://` 一致。TLS 的 CA、证书或密钥等参数只能配合 `amqps` 使用；配置为 `amqp` 时模块会在初始化阶段抛出原生异常，而不是尝试建立错误连接。
 
-例如，下面的配置会在 Nest 创建 RabbitMQ provider 时抛出 `RabbitMQConfigurationException`，提示 TLS 参数要求使用 `amqps`：
+例如，下面的配置会在 Nest 创建 RabbitMQ provider 时抛出原生 `Error`，提示 TLS 参数要求使用 `amqps`：
 
 ```ts
 import { readFileSync } from 'node:fs';
@@ -73,28 +73,21 @@ RabbitMQModule.forRoot({
 });
 ```
 
-`RabbitMQConfigurationException` 可按 Nest 异常处理：
+配置错误可按原生 `Error` 捕获：
 
 ```ts
 import { NestFactory } from '@nestjs/core';
-import { BadRequestException } from '@nestjs/common';
-import { RabbitMQConfigurationException } from '@soratani-code/rabbitmq-module';
 
 async function bootstrap(): Promise<void> {
   try {
     await NestFactory.create(AppModule);
   } catch (error) {
-    if (error instanceof RabbitMQConfigurationException) {
+    if (error instanceof Error) {
       console.error('RabbitMQ 配置无效:', error.message);
-    }
-    if (error instanceof BadRequestException) {
-      // 也兼容按 Nest HttpException 基类统一处理
     }
     throw error;
   }
 }
-
-void bootstrap();
 ```
 
 ## 2. 多节点/集群地址静态配置

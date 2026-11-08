@@ -1,10 +1,9 @@
-import { Injectable, OnApplicationShutdown, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import * as amqp from 'amqp-connection-manager';
 import type { Channel, ConfirmChannel, ConsumeMessage, Options } from 'amqplib';
 import type { AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
 import type { RabbitMQClientOptions } from './interfaces/rabbitmq-options.interface';
 import type { RabbitMQModuleOptions } from './interfaces/rabbitmq-options.interface';
-import { RabbitMQConfigurationException } from './rabbitmq.exceptions';
 
 /** A named AMQP connection. Channel methods intentionally retain the full amqplib API. */
 @Injectable()
@@ -33,7 +32,7 @@ export class RabbitMQClient implements OnApplicationShutdown {
       await new Promise<void>((resolve) => this.manager.once('connect', () => resolve()));
     }
     const connection = this.manager.connection;
-    if (!connection) throw new ServiceUnavailableException(`RabbitMQ client "${this.name}" is not connected`);
+    if (!connection) throw new Error(`RabbitMQ client "${this.name}" is not connected`);
     return confirm ? connection.createConfirmChannel() : connection.createChannel();
   }
 
@@ -44,10 +43,10 @@ export class RabbitMQClient implements OnApplicationShutdown {
 
 function resolveUrls(name: string, options: RabbitMQClientOptions): string[] {
   if (options.protocol !== undefined && options.protocol !== 'amqp' && options.protocol !== 'amqps') {
-    throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": protocol must be either "amqp" or "amqps"`);
+    throw new Error(`RabbitMQ client "${name}": protocol must be either "amqp" or "amqps"`);
   }
   if (options.url !== undefined && options.urls !== undefined) {
-    throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": configure either "url" or "urls", not both`);
+    throw new Error(`RabbitMQ client "${name}": configure either "url" or "urls", not both`);
   }
   const explicitUrls = options.urls === undefined
     ? (options.url === undefined ? undefined : [options.url])
@@ -57,36 +56,36 @@ function resolveUrls(name: string, options: RabbitMQClientOptions): string[] {
   const hasTlsOptions = Boolean(tlsOptions && tlsOptionNames.some((key) => (tlsOptions as Record<string, unknown>)[key] !== undefined));
   const hostFieldsWithUrl = ['host', 'port', 'user', 'password', 'vhost'];
   if (explicitUrls && hostFieldsWithUrl.some((key) => (options as Record<string, unknown>)[key] !== undefined)) {
-    throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": do not mix "url"/"urls" with host-based fields (${hostFieldsWithUrl.join(', ')})`);
+    throw new Error(`RabbitMQ client "${name}": do not mix "url"/"urls" with host-based fields (${hostFieldsWithUrl.join(', ')})`);
   }
   if (explicitUrls) {
     if (explicitUrls.length === 0 || explicitUrls.some((url) => !url.trim())) {
-      throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": "urls" must contain at least one non-empty URL`);
+      throw new Error(`RabbitMQ client "${name}": "urls" must contain at least one non-empty URL`);
     }
     for (const value of explicitUrls) {
       let parsed: URL;
       try { parsed = new URL(value); } catch {
-        throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": invalid AMQP URL "${value}"`);
+        throw new Error(`RabbitMQ client "${name}": invalid AMQP URL "${value}"`);
       }
       if (parsed.protocol !== 'amqp:' && parsed.protocol !== 'amqps:') {
-        throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": URL protocol must be amqp:// or amqps://`);
+        throw new Error(`RabbitMQ client "${name}": URL protocol must be amqp:// or amqps://`);
       }
       if (options.protocol && parsed.protocol !== `${options.protocol}:`) {
-        throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": protocol "${options.protocol}" conflicts with URL "${value}"`);
+        throw new Error(`RabbitMQ client "${name}": protocol "${options.protocol}" conflicts with URL "${value}"`);
       }
       if (hasTlsOptions && parsed.protocol !== 'amqps:') {
-        throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": TLS options require an amqps:// URL`);
+        throw new Error(`RabbitMQ client "${name}": TLS options require an amqps:// URL`);
       }
     }
     return explicitUrls;
   }
-  if (!options.host?.trim()) throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": provide "url", "urls", or "host"`);
+  if (!options.host?.trim()) throw new Error(`RabbitMQ client "${name}": provide "url", "urls", or "host"`);
   const protocol = options.protocol ?? 'amqp';
   if (hasTlsOptions && protocol !== 'amqps') {
-    throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": TLS options require protocol "amqps"`);
+    throw new Error(`RabbitMQ client "${name}": TLS options require protocol "amqps"`);
   }
   if (options.port !== undefined && (!Number.isInteger(options.port) || options.port < 1 || options.port > 65535)) {
-    throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": port must be an integer between 1 and 65535`);
+    throw new Error(`RabbitMQ client "${name}": port must be an integer between 1 and 65535`);
   }
   const host = options.host.includes(':') && !options.host.startsWith('[') ? `[${options.host}]` : options.host;
   const port = options.port ?? (protocol === 'amqps' ? 5671 : 5672);
@@ -123,7 +122,7 @@ export class RabbitMQClients implements OnApplicationShutdown {
 
   get(name = 'default'): RabbitMQClient {
     const client = this.clients.get(name);
-    if (!client) throw new RabbitMQConfigurationException(`RabbitMQ client "${name}" is not configured`);
+    if (!client) throw new Error(`RabbitMQ client "${name}" is not configured`);
     return client;
   }
 
