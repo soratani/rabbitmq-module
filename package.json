@@ -1,6 +1,6 @@
 {
   "name": "@soratani-code/rabbitmq-module",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A NestJS RabbitMQ module with named clients, cluster URLs and full AMQP channel access.",
   "license": "MIT",
   "packageManager": "pnpm@10.26.2",
