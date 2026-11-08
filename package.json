@@ -4,11 +4,23 @@
   "description": "A NestJS RabbitMQ module with named clients, cluster URLs and full AMQP channel access.",
   "license": "MIT",
   "packageManager": "pnpm@10.26.2",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
   "author": "",
   "repository": "",
   "homepage": "",
-  "keywords": ["nestjs", "rabbitmq", "amqp", "amqplib", "cluster"],
+  "keywords": [
+    "nestjs",
+    "rabbitmq",
+    "amqp",
+    "amqplib",
+    "cluster"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -18,7 +30,11 @@
       "default": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
