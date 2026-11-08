@@ -43,6 +43,9 @@ export class RabbitMQClient implements OnApplicationShutdown {
 }
 
 function resolveUrls(name: string, options: RabbitMQClientOptions): string[] {
+  if (options.protocol !== undefined && options.protocol !== 'amqp' && options.protocol !== 'amqps') {
+    throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": protocol must be either "amqp" or "amqps"`);
+  }
   if (options.url !== undefined && options.urls !== undefined) {
     throw new RabbitMQConfigurationException(`RabbitMQ client "${name}": configure either "url" or "urls", not both`);
   }

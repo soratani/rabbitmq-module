@@ -60,6 +60,43 @@ RabbitMQModule.forRoot({
 
 `url` / `urls` 与 `host` 配置模式不可混用。若 `url` / `urls` 中同时指定 `protocol`，它必须与 URL 自身的 `amqp://` 或 `amqps://` 一致。TLS 的 CA、证书或密钥等参数只能配合 `amqps` 使用；配置为 `amqp` 时模块会在初始化阶段抛出 Nest 异常，而不是尝试建立错误连接。
 
+例如，下面的配置会在 Nest 创建 RabbitMQ provider 时抛出 `RabbitMQConfigurationException`，提示 TLS 参数要求使用 `amqps`：
+
+```ts
+import { readFileSync } from 'node:fs';
+import { RabbitMQModule } from 'nestjs-rabbitmq-module';
+
+RabbitMQModule.forRoot({
+  host: 'rabbit.internal',
+  protocol: 'amqp', // 配有 CA 时必须改为 amqps
+  connectionOptions: { ca: [readFileSync('./rabbit-ca.pem')] },
+});
+```
+
+`RabbitMQConfigurationException` 可按 Nest 异常处理：
+
+```ts
+import { NestFactory } from '@nestjs/core';
+import { BadRequestException } from '@nestjs/common';
+import { RabbitMQConfigurationException } from 'nestjs-rabbitmq-module';
+
+async function bootstrap(): Promise<void> {
+  try {
+    await NestFactory.create(AppModule);
+  } catch (error) {
+    if (error instanceof RabbitMQConfigurationException) {
+      console.error('RabbitMQ 配置无效:', error.message);
+    }
+    if (error instanceof BadRequestException) {
+      // 也兼容按 Nest HttpException 基类统一处理
+    }
+    throw error;
+  }
+}
+
+void bootstrap();
+```
+
 ## 2. 多节点/集群地址静态配置
 
 多个 URL 传给同一个客户端。地址列表用于连接管理器选择节点和故障恢复：
