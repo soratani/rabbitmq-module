@@ -1,0 +1,42 @@
+{
+  "name": "@soratani-code/rabbitmq-module",
+  "version": "0.1.0",
+  "description": "A NestJS RabbitMQ module with named clients, cluster URLs and full AMQP channel access.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.26.2",
+  "engines": { "node": ">=18" },
+  "author": "",
+  "repository": "",
+  "homepage": "",
+  "keywords": ["nestjs", "rabbitmq", "amqp", "amqplib", "cluster"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm run build"
+  },
+  "peerDependencies": {
+    "@nestjs/common": ">=9.0.0",
+    "reflect-metadata": "^0.1.13 || ^0.2.0",
+    "rxjs": "^7.0.0",
+    "amqp-connection-manager": "^4.1.14",
+    "amqplib": "^0.10.5"
+  },
+  "devDependencies": {
+    "@nestjs/common": "^10.4.15",
+    "@types/amqplib": "^0.10.5",
+    "@types/node": "^22.10.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "typescript": "^5.7.2"
+  }
+}
