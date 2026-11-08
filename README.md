@@ -1,4 +1,4 @@
-# nestjs-rabbitmq-module
+# @soratani-code/rabbitmq-module
 
 适用于 NestJS 的 RabbitMQ 模块。支持静态配置、异步外部配置、单节点或多节点连接地址、多个具名客户端、断线重连，以及通过 `amqplib` 使用原生 AMQP channel API。
 
@@ -18,7 +18,7 @@
 ## 安装
 
 ```bash
-pnpm add nestjs-rabbitmq-module
+pnpm add @soratani-code/rabbitmq-module
 ```
 
 NestJS 应用还需安装并配置 `@nestjs/common`、`reflect-metadata` 和 `rxjs`（它们由本包作为 peer dependency 使用）。
@@ -30,7 +30,7 @@ NestJS 应用还需安装并配置 `@nestjs/common`、`reflect-metadata` 和 `rx
 ```ts
 // app.module.ts
 import { Module } from '@nestjs/common';
-import { RabbitMQModule } from 'nestjs-rabbitmq-module';
+import { RabbitMQModule } from '@soratani-code/rabbitmq-module';
 
 @Module({
   imports: [
@@ -64,7 +64,7 @@ RabbitMQModule.forRoot({
 
 ```ts
 import { readFileSync } from 'node:fs';
-import { RabbitMQModule } from 'nestjs-rabbitmq-module';
+import { RabbitMQModule } from '@soratani-code/rabbitmq-module';
 
 RabbitMQModule.forRoot({
   host: 'rabbit.internal',
@@ -78,7 +78,7 @@ RabbitMQModule.forRoot({
 ```ts
 import { NestFactory } from '@nestjs/core';
 import { BadRequestException } from '@nestjs/common';
-import { RabbitMQConfigurationException } from 'nestjs-rabbitmq-module';
+import { RabbitMQConfigurationException } from '@soratani-code/rabbitmq-module';
 
 async function bootstrap(): Promise<void> {
   try {
@@ -104,7 +104,7 @@ void bootstrap();
 ```ts
 // app.module.ts
 import { Module } from '@nestjs/common';
-import { RabbitMQModule } from 'nestjs-rabbitmq-module';
+import { RabbitMQModule } from '@soratani-code/rabbitmq-module';
 
 @Module({
   imports: [
@@ -134,7 +134,7 @@ export class AppModule {}
 // app.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { RabbitMQModule } from 'nestjs-rabbitmq-module';
+import { RabbitMQModule } from '@soratani-code/rabbitmq-module';
 
 @Module({
   imports: [
@@ -193,7 +193,7 @@ RabbitMQModule.forRootAsync({
 ```ts
 // app.module.ts
 import { Module } from '@nestjs/common';
-import { RabbitMQModule } from 'nestjs-rabbitmq-module';
+import { RabbitMQModule } from '@soratani-code/rabbitmq-module';
 
 @Module({
   imports: [
@@ -219,7 +219,7 @@ export class AppModule {}
 // app.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { RabbitMQModule } from 'nestjs-rabbitmq-module';
+import { RabbitMQModule } from '@soratani-code/rabbitmq-module';
 
 @Module({
   imports: [
@@ -246,7 +246,7 @@ export class AppModule {}
 ```ts
 // orders.service.ts
 import { Injectable } from '@nestjs/common';
-import { InjectRabbitMQ, RabbitMQClient } from 'nestjs-rabbitmq-module';
+import { InjectRabbitMQ, RabbitMQClient } from '@soratani-code/rabbitmq-module';
 
 @Injectable()
 export class OrdersService {
@@ -263,7 +263,7 @@ export class OrdersService {
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { InjectRabbitMQClients, RabbitMQClient, RabbitMQClients } from 'nestjs-rabbitmq-module';
+import { InjectRabbitMQClients, RabbitMQClient, RabbitMQClients } from '@soratani-code/rabbitmq-module';
 
 @Injectable()
 export class OrdersService {
@@ -284,7 +284,7 @@ export class OrdersService {
 ```ts
 // events.publisher.ts
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { InjectRabbitMQ, RabbitMQClient } from 'nestjs-rabbitmq-module';
+import { InjectRabbitMQ, RabbitMQClient } from '@soratani-code/rabbitmq-module';
 import type { ChannelWrapper } from 'amqp-connection-manager';
 
 @Injectable()
@@ -319,7 +319,7 @@ export class EventsPublisher implements OnModuleInit {
 ```ts
 // orders.consumer.ts
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { InjectRabbitMQ, RabbitMQClient } from 'nestjs-rabbitmq-module';
+import { InjectRabbitMQ, RabbitMQClient } from '@soratani-code/rabbitmq-module';
 import type { ConsumeMessage } from 'amqplib';
 
 @Injectable()
